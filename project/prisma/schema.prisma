@@ -12,3 +12,101 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+
+model Schema {
+  id        String   @id @default(uuid())
+  name      String
+  tables    Table[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Table {
+  id        String     @id @default(uuid())
+  schemaId  String
+  schema    Schema     @relation(fields: [schemaId], references: [id])
+  name      String
+  columns   Column[]
+  relations Relation[]
+  entities  Entity[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Column {
+  id           String   @id @default(uuid())
+  tableId      String
+  table        Table    @relation(fields: [tableId], references: [id])
+  name         String
+  type         String
+  isRequired   Boolean  @default(false)
+  isUnique     Boolean  @default(false)
+  isPrimaryKey Boolean  @default(false)
+  isForeignKey Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Tool {
+  id        String     @id @default(uuid())
+  name      String
+  uis       UI[]
+  relations Relation[]
+  entities  Entity[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model UI {
+  id        String   @id @default(uuid())
+  toolId    String
+  tool      Tool     @relation(fields: [tableId], references: [id])
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plugin {
+  id        String     @id @default(uuid())
+  name      String
+  relations Relation[]
+  entities  Entity[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Relation {
+  id           String   @id @default(uuid())
+  sourceType   String   // 参照先テーブル特定のため
+  sourceId     String
+  sourceHandle String?
+  targetType   String   // 参照先テーブル特定のため
+  targetId     String
+  targetHandle String?
+  label        String?
+  tableSource  Table?   @relation(fields: [sourceId, targetId], references: [id], name: "RelationTableSource")
+  toolSource   Tool?    @relation(fields: [sourceId, targetId], references: [id], name: "RelationToolSource")
+  pluginSource Plugin?  @relation(fields: [sourceId, targetId], references: [id], name: "RelationPluginSource")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ERDiagram {
+  id        String   @id @default(uuid())
+  name      String
+  entities  Entity[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Entity {
+  id        String    @id @default(uuid())
+  diagramId String
+  diagram   ERDiagram @relation(fields: [diagramId], references: [id])
+  entityId  String
+  positionX Float
+  potisionY Float
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

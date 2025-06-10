@@ -31,7 +31,8 @@ $ npm run dev
 Prismaとts-nodeのインストール
 
 ```sh
-npm install prisma ts-node --save-dev
+npm install prisma ts-node
+npm install @prisma/client
 ```
 
 Prismaの初期化

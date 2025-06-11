@@ -1,7 +1,9 @@
-import { ERNodeType } from "@/types/erd";
+import { EntityType } from "@/types/erd";
+
+export type SideTabType = EntityType | "relation";
 
 type SideTabProps = {
-    onTabClick: (tabName: ERNodeType | "relation") => void;
+    onTabClick: (tabName: SideTabType) => void;
 };
 
 const SideTab: React.FC<SideTabProps> = ({ onTabClick }) => {
@@ -22,13 +24,13 @@ const SideTab: React.FC<SideTabProps> = ({ onTabClick }) => {
                 table
             </button>
             <button
-                onClick={() => onTabClick("tool")}
+                onClick={() => onTabClick("page")}
                 className="
                     px-4 py-2 border rounded
                     bg-orange-100 hover:bg-orange-200
                 "
             >
-                tool
+                page
             </button>
             <button
                 onClick={() => onTabClick("plugin")}

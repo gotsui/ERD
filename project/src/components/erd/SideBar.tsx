@@ -157,24 +157,31 @@ const SideBar: React.FC<SideBarProps> = ({
                             gap-1 overflow-hidden
                         "
                     >
-                        {
-                            edges.map(
-                                (edge) => (
-                                    <div
-                                        key={edge.id}
-                                        className="
-                                            rounded-md border-b px-2
-                                            text-sm font-medium h-11
-                                            flex items-center
-                                        "
-                                    >
-                                        {edge.source}.{edge.sourceHandle}
-                                        -
-                                        {edge.target}.{edge.targetHandle}
-                                    </div>
-                                )
-                            )
-                        }
+                        {edges.map((edge) => {
+                            const sourceEntity = nodes.find((node) => node.id === edge.source);
+                            const sourceAttribute = sourceEntity?.data.attributes.find((attribute) => attribute.id === edge.sourceHandle);
+                            const targetEntity = nodes.find((node) => node.id === edge.target);
+                            const targetAttribute = targetEntity?.data.attributes.find((attribute) => attribute.id === edge.targetHandle);
+
+                            return (
+                                <div
+                                    key={edge.id}
+                                    className="
+                                        rounded-md border-b px-2
+                                        text-sm font-medium h-11
+                                        flex items-center
+                                    "
+                                >
+                                    {sourceEntity?.data.name}
+                                    .
+                                    {sourceAttribute?.name}
+                                    -
+                                    {targetEntity?.data.name}
+                                    .
+                                    {targetAttribute?.name}
+                                </div>
+                            );
+                        })}
                     </div>
                 </section>
             )}

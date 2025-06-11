@@ -10,7 +10,7 @@ const SideTab: React.FC<SideTabProps> = ({ onTabClick }) => {
     return (
         <div
             className="
-                flex flex-col bg-gray-50
+                flex flex-col bg-gray-100
                 border border-gray-200 h-full overflow-y-auto
             "
         >

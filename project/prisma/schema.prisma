@@ -52,13 +52,13 @@ model Attribute {
 model Relation {
   id                String   @id @default(uuid())
   sourceEntityId    String
-  sourceAttributeId String
   targetEntityId    String
+  sourceAttributeId String
   targetAttributeId String
   label             String?
   sourceEntity      Entity    @relation(fields: [sourceEntityId], references: [id], name: "SourceToEntity")
-  sourceAttribute   Attribute @relation(fields: [sourceAttributeId], references: [id], name: "SourceToAttribute")
   targetEntity      Entity    @relation(fields: [targetEntityId], references: [id], name: "TargetToEntity")
+  sourceAttribute   Attribute @relation(fields: [sourceAttributeId], references: [id], name: "SourceToAttribute")
   targetAttribute   Attribute @relation(fields: [targetAttributeId], references: [id], name: "TargetToAttribute")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import TableNode from "./TableNode";
 import { addEdge, Background, Connection, Controls, ReactFlow, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
@@ -21,36 +23,23 @@ const ErdEditor: React.FC = () => {
     const [selectedTab, setSelectedTab] = useState<SideTabType>("table");
 
     useEffect(() => {
-        const initialNodes: Entity[] = [
-            {
-                id: "1",
-                type: "table",
-                position: { x: 100, y: 100 },
-                data: {
-                    name: "tbl1",
-                    attributes: [{
-                        id: "1",
-                        name: "col1",
-                        type: "varchar"
-                    }],
-                },
-            },
-            {
-                id: "2",
-                type: "table",
-                position: { x: 500, y: 100 },
-                data: {
-                    name: "tbl2",
-                    attributes: [{
-                        id: "1",
-                        name: "col1",
-                        type: "varchar"
-                    }],
-                },
-            },
-        ];
+        const fetchData = async () => {
+            try {
+                const response = await fetch("/api/erd");
 
-        setNodes(initialNodes);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch entity");
+                }
+
+                const { nodes: initialNodes, edges: initialEdges } = await response.json();
+                setNodes(initialNodes);
+                setEdges(initialEdges);
+            } catch (error) {
+                console.error("Error fetching entities: ", error);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const onConnect = useCallback((params: Connection) => {
@@ -89,6 +78,8 @@ const ErdEditor: React.FC = () => {
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
                         onConnect={onConnect}
                         nodeTypes={nodeTypes}
                     >

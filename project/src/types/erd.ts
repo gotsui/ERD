@@ -1,5 +1,11 @@
 export type EntityType = "table" | "page" | "plugin";
 
+export type EntityGroup = {
+    id: string;
+    name: string;
+    entities: Entity[];
+};
+
 export type Entity = {
     id: string;
     type: EntityType;

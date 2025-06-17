@@ -79,7 +79,7 @@ model ErdEntity {
   entityId  String
   entity    Entity   @relation(fields: [entityId], references: [id])
   positionX Float
-  potisionY Float
+  positionY Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

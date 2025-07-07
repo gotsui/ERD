@@ -1,4 +1,5 @@
-export type EntityType = "table" | "page" | "plugin";
+export const EntityTypes = ["table", "page", "plugin"] as const;
+export type EntityType = typeof EntityTypes[number]
 
 export type EntityGroup = {
     id: string;
@@ -10,7 +11,11 @@ export type Entity = {
     id: string;
     type: EntityType;
     position: { x: number; y: number; };
-    data: { name: string; attributes: Attribute[]; };
+    data: {
+        name: string;
+        groupName: string;
+        attributes: Attribute[];
+    };
 };
 
 export type Attribute = {

@@ -5,7 +5,7 @@ import { Entity, Relation } from "@/types/erd";
 export async function GET() {
     try {
         const entities = await prisma.entity.findMany({
-            include: { attributes: true },
+            include: { entityGroup: true, attributes: true },
             orderBy: [{ name: "asc" }],
         });
 
@@ -17,6 +17,7 @@ export async function GET() {
             position: { x: index * 300 + 100, y: 100 },
             data: {
                 name: entity.name,
+                groupName: entity.entityGroup.name,
                 attributes: entity.attributes,
             },
         }));

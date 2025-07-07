@@ -3,22 +3,22 @@ import { Node, NodeProps } from "@xyflow/react";
 import { Attribute } from "@/types/erd";
 import EntityNode from "./EntityNode";
 
-type TableNodeProps = Node<
+type PluginNodeProps = Node<
     {
         name: string;
         attributes: Attribute[];
     }
 >;
 
-const TableNode: React.FC<NodeProps<TableNodeProps>> = ({ id, data }) => {
+const PluginNode: React.FC<NodeProps<PluginNodeProps>> = ({ id, data }) => {
     return (
         <EntityNode
             name={data.name}
             attributes={data.attributes}
-            color="border-red-500 bg-red-50"
-            handleColor="!bg-red-500"
+            color="border-green-500 bg-green-50"
+            handleColor="!bg-green-500"
         />
     );
 };
 
-export default TableNode;
+export default PluginNode;

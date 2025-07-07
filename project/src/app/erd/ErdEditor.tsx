@@ -9,11 +9,14 @@ import TabGroup from "@/components/sidetabs/TabGroup";
 import TabList from "@/components/sidetabs/TabList";
 import TabPanel from "@/components/sidetabs/TabPanel";
 import SaveTabContent from "./SaveTabContent";
+import EntityTabContent from "./EntityTabContent";
+import PageNode from "@/components/erd/PageNode";
+import PluginNode from "@/components/erd/PluginNode";
 
 const nodeTypes = {
     table: TableNode,
-    tool: TableNode,
-    plugin: TableNode,
+    page: PageNode,
+    plugin: PluginNode,
 };
 
 const ErdEditor: React.FC = () => {
@@ -28,6 +31,8 @@ const ErdEditor: React.FC = () => {
         const nodeIdSet = new Set(displayedNodes.map((node) => node.id));
         return entities.filter((entity) => !nodeIdSet.has(entity.id));
     }, [entities, displayedNodes]);
+
+    const nonDisplayedEntityMap = Map.groupBy(nonDisplayedNodes, ({ type }) => type);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -89,21 +94,16 @@ const ErdEditor: React.FC = () => {
 
         const displayingNode: Entity = { ...entity, position };
 
-        const nextDisplayedNodeIdSet = new Set(
-            [...displayedNodes.map((node) => node.id), displayingNode.id]
-        );
-        const nextDisplayedEdges = relations.filter(
-            (edge) => nextDisplayedNodeIdSet.has(edge.source) && nextDisplayedNodeIdSet.has(edge.target)
-        );
-
         setDisplayedNodes((nds) => nds.concat(displayingNode));
-        setDisplayedEdges(nextDisplayedEdges);
-    }, [screenToFlowPosition, nonDisplayedNodes, setDisplayedNodes, setDisplayedEdges]);
+    }, [screenToFlowPosition, nonDisplayedNodes, setDisplayedNodes]);
 
-    const handleDragStart = (event: React.DragEvent, entityId: string) => {
-        event.dataTransfer.setData("application/reactflow", entityId);
-        event.dataTransfer.effectAllowed = "move";
-    };
+    useEffect(() => {
+        const displayedNodeIdSet = new Set(displayedNodes.map((node) => node.id));
+        const nextDisplayedEdges = relations.filter(
+            (edge) => displayedNodeIdSet.has(edge.source) && displayedNodeIdSet.has(edge.target)
+        );
+        setDisplayedEdges(nextDisplayedEdges);
+    }, [displayedNodes]);
 
     return (
         <div className="h-screen w-screen flex flex-col select-none overflow-x-hidden">
@@ -117,40 +117,22 @@ const ErdEditor: React.FC = () => {
                         <Tab id="erd">ER図</Tab>
                     </TabList>
                     <TabPanel id="table">
-                        <div className="flex flex-col w-64 px-2 border-r border-gray-200">
-                            <div>
-                                <input
-                                    type="text"
-                                    className="
-                                        bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-                                    "
-                                    placeholder="フィルター"
-                                />
-                            </div>
-                            <div className="flex flex-col gap-2 mt-2">
-                                {nonDisplayedNodes.map((node) => (
-                                    <div key={node.id}>
-                                        <div
-                                            className="
-                                                p-3 bg-gray-100 rounded-md cursor-grab
-                                                hover:bg-gray-200 transition
-                                            "
-                                            draggable
-                                            onDragStart={(e) => handleDragStart(e, node.id)}
-                                        >
-                                            {node.data.name}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        <EntityTabContent
+                            entityType="table"
+                            entities={nonDisplayedEntityMap.get("table") ?? []}
+                        />
                     </TabPanel>
                     <TabPanel id="page">
-                        page
+                        <EntityTabContent
+                            entityType="page"
+                            entities={nonDisplayedEntityMap.get("page") ?? []}
+                        />
                     </TabPanel>
                     <TabPanel id="plugin">
-                        plugin
+                        <EntityTabContent
+                            entityType="plugin"
+                            entities={nonDisplayedEntityMap.get("plugin") ?? []}
+                        />
                     </TabPanel>
                     <TabPanel id="relation">
                         relation

@@ -141,7 +141,10 @@ const ErdEditor: React.FC = () => {
                         relation
                     </TabPanel>
                     <TabPanel id="erd">
-                        <ErdTabContent />
+                        <ErdTabContent
+                            displayedNodes={displayedNodes}
+                            setDisplayedNodes={setDisplayedNodes}
+                        />
                     </TabPanel>
                 </TabGroup>
                 <div className="flex-1" ref={reactFlowWrapper}>

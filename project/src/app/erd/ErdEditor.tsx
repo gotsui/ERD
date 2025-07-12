@@ -8,7 +8,7 @@ import Tab from "@/components/sidetabs/Tab";
 import TabGroup from "@/components/sidetabs/TabGroup";
 import TabList from "@/components/sidetabs/TabList";
 import TabPanel from "@/components/sidetabs/TabPanel";
-import SaveTabContent from "./SaveTabContent";
+import ErdTabContent from "./ErdTabContent";
 import EntityTabContent from "./EntityTabContent";
 import PageNode from "@/components/erd/PageNode";
 import PluginNode from "@/components/erd/PluginNode";
@@ -141,7 +141,7 @@ const ErdEditor: React.FC = () => {
                         relation
                     </TabPanel>
                     <TabPanel id="erd">
-                        <SaveTabContent />
+                        <ErdTabContent />
                     </TabPanel>
                 </TabGroup>
                 <div className="flex-1" ref={reactFlowWrapper}>

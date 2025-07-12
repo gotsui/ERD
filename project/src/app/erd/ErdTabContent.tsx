@@ -23,22 +23,28 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const response = await fetch("/api/erd");
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch erd");
-                }
-
-                const { erds }: { erds: Erd[]; } = await response.json();
-                setErds(erds);
-            } catch (error) {
-                console.error("Error fetching ERD: ", error);
-            }
+            const nextErds = await requestErdList();
+            setErds(nextErds);
         };
 
         fetchData();
     }, []);
+
+    const requestErdList = async (): Promise<Erd[]> => {
+        try {
+            const response = await fetch("/api/erd");
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch erd");
+            }
+
+            const { erds }: { erds: Erd[]; } = await response.json();
+            return erds;
+        } catch (error) {
+            console.error("Error fetching ERD: ", error);
+            return [];
+        }
+    }
 
     const handleClickLoad = async () => {
         if (!selectedErdId) {
@@ -81,6 +87,10 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
 
         if (res.ok) {
             alert("保存しました");
+
+            // 保存したER図のIDを取得するためリクエスト
+            const nextErds = await requestErdList();
+            setErds(nextErds);
         } else {
             alert("保存に失敗しました");
         }

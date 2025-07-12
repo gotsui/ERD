@@ -41,7 +41,7 @@ const ErdEditor: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("/api/erd");
+                const response = await fetch("/api/entity");
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch entity");

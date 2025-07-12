@@ -34,6 +34,10 @@ const ErdEditor: React.FC = () => {
 
     const nonDisplayedEntityMap = Map.groupBy(nonDisplayedNodes, ({ type }) => type);
 
+    const addedRelations = useMemo(() => {
+        return displayedEdges.filter((edge) => !relations.some((relation) => relation.id === edge.id));
+    }, [relations, displayedEdges]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -94,16 +98,15 @@ const ErdEditor: React.FC = () => {
 
         const displayingNode: Entity = { ...entity, position };
 
-        setDisplayedNodes((nds) => nds.concat(displayingNode));
-    }, [screenToFlowPosition, nonDisplayedNodes, setDisplayedNodes]);
-
-    useEffect(() => {
-        const displayedNodeIdSet = new Set(displayedNodes.map((node) => node.id));
-        const nextDisplayedEdges = relations.filter(
+        const nextDisplayedNodes = displayedNodes.concat(displayingNode);
+        const displayedNodeIdSet = new Set(nextDisplayedNodes.map((node) => node.id));
+        const nextDisplayedEdges = relations.concat(addedRelations).filter(
             (edge) => displayedNodeIdSet.has(edge.source) && displayedNodeIdSet.has(edge.target)
         );
+
+        setDisplayedNodes(nextDisplayedNodes);
         setDisplayedEdges(nextDisplayedEdges);
-    }, [displayedNodes]);
+    }, [screenToFlowPosition, nonDisplayedNodes, setDisplayedNodes, addedRelations]);
 
     return (
         <div className="h-screen w-screen flex flex-col select-none overflow-x-hidden">

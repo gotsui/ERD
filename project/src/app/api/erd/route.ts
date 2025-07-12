@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Entity } from "@/types/erd";
 
+export async function GET() {
+    try {
+        const erds = await prisma.erd.findMany();
+
+        return NextResponse.json({ erds }, { status: 200 });
+    } catch (error) {
+        return NextResponse.json({ error: "Failed to fetch ERD" }, { status: 500 });
+    }
+}
+
 export async function POST(request: NextRequest) {
     try {
         const { name, entities }: { name: string; entities: Entity[]; } = await request.json();

@@ -38,6 +38,16 @@ const ErdEditor: React.FC = () => {
         return displayedEdges.filter((edge) => !relations.some((relation) => relation.id === edge.id));
     }, [relations, displayedEdges]);
 
+    const updateDisplay = useCallback((nextDisplayedNodes: Entity[]) => {
+        const displayedNodeIdSet = new Set(nextDisplayedNodes.map((node) => node.id));
+        const nextDisplayedEdges = relations.concat(addedRelations).filter(
+            (edge) => displayedNodeIdSet.has(edge.source) && displayedNodeIdSet.has(edge.target)
+        );
+
+        setDisplayedNodes(nextDisplayedNodes);
+        setDisplayedEdges(nextDisplayedEdges);
+    }, [relations, setDisplayedNodes, setDisplayedEdges, addedRelations]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -99,14 +109,8 @@ const ErdEditor: React.FC = () => {
         const displayingNode: Entity = { ...entity, position };
 
         const nextDisplayedNodes = displayedNodes.concat(displayingNode);
-        const displayedNodeIdSet = new Set(nextDisplayedNodes.map((node) => node.id));
-        const nextDisplayedEdges = relations.concat(addedRelations).filter(
-            (edge) => displayedNodeIdSet.has(edge.source) && displayedNodeIdSet.has(edge.target)
-        );
-
-        setDisplayedNodes(nextDisplayedNodes);
-        setDisplayedEdges(nextDisplayedEdges);
-    }, [screenToFlowPosition, nonDisplayedNodes, setDisplayedNodes, addedRelations]);
+        updateDisplay(nextDisplayedNodes);
+    }, [screenToFlowPosition, nonDisplayedNodes]);
 
     return (
         <div className="h-screen w-screen flex flex-col select-none overflow-x-hidden">
@@ -143,7 +147,7 @@ const ErdEditor: React.FC = () => {
                     <TabPanel id="erd">
                         <ErdTabContent
                             displayedNodes={displayedNodes}
-                            setDisplayedNodes={setDisplayedNodes}
+                            setDisplayedNodes={updateDisplay}
                         />
                     </TabPanel>
                 </TabGroup>

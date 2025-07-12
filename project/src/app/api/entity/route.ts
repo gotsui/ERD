@@ -33,6 +33,6 @@ export async function GET() {
 
         return NextResponse.json({ nodes, edges }, { status: 200 });
     } catch (error) {
-        return NextResponse.json({ error: "Failed to fetch Entity"}, { status: 500 });
+        return NextResponse.json({ error: "Failed to fetch Entity" }, { status: 500 });
     }
 }

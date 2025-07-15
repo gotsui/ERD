@@ -20,6 +20,7 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
     const [erdName, setErdName] = useState("");
     const [erds, setErds] = useState<Erd[]>([]);
     const [selectedErdId, setSelectedErdId] = useState("");
+    const [loadedErd, setLoadedErd] = useState<Erd | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,6 +50,7 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
     const handleClickLoad = async () => {
         if (!selectedErdId) {
             alert("ER図を選択してください");
+            return;
         }
 
         try {
@@ -60,6 +62,7 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
 
             const { entities }: { entities: Entity[]; } = await response.json();
             setDisplayedNodes(entities);
+            setLoadedErd(erds.find((erd) => erd.id === selectedErdId) ?? null);
         } catch (error) {
             console.error("Error fetching ERD: ", error);
         }
@@ -76,7 +79,7 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
             return;
         }
 
-        const res = await fetch("/api/erd", {
+        const response = await fetch("/api/erd", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -85,12 +88,51 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
             }),
         });
 
-        if (res.ok) {
+        if (response.ok) {
             alert("保存しました");
 
-            // 保存したER図のIDを取得するためリクエスト
-            const nextErds = await requestErdList();
+            // 上書き保存対象に設定
+            const { erd }: { erd: Erd; } = await response.json();
+            setLoadedErd(erd);
+
+            // 一覧に追加してER図名でソート
+            const nextErds = erds.concat(erd).sort((a, b) => {
+                const nameA = a.name.toUpperCase();
+                const nameB = b.name.toUpperCase();
+
+                if (nameA < nameB) {
+                    return -1;
+                }
+
+                if (nameA > nameB) {
+                    return 1;
+                }
+
+                return 0;
+            });
             setErds(nextErds);
+        } else {
+            alert("保存に失敗しました");
+        }
+    };
+
+    const handleClickOverwrite = async () => {
+        if (!loadedErd) {
+            alert("読み込みエラー");
+            return;
+        }
+
+        const response = await fetch("/api/erd", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: loadedErd.id,
+                entities: displayedNodes,
+            }),
+        });
+
+        if (response.ok) {
+            alert("保存しました");
         } else {
             alert("保存に失敗しました");
         }
@@ -129,6 +171,35 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
                         読み込み
                     </button>
                 </div>
+                {loadedErd && (
+                    <div>
+                        <span>上書き保存</span>
+                        <div className="mb-4">
+                            <label htmlFor="overwrite-erd" className="block mb-2 text-sm font-medium text-gray-900">ER図名</label>
+                            <input
+                                type="text"
+                                id="overwrite-erd"
+                                value={loadedErd.name}
+                                onChange={(e) => setErdName(e.target.value)}
+                                className="
+                                    bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                                    focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
+                                "
+                                readOnly
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            className="
+                                text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
+                                font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center
+                            "
+                            onClick={handleClickOverwrite}
+                        >
+                            保存
+                        </button>
+                    </div>
+                )}
                 <div>
                     <span>名前を付けて保存</span>
                     <div className="mb-4">

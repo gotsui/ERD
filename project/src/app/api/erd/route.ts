@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Bad Request" }, { status: 400 });
         }
 
-        await prisma.$transaction(async (prisma) => {
+        const erd = await prisma.$transaction(async (prisma) => {
             const erd = await prisma.erd.create({ data: { name } });
 
             await prisma.erdEntity.createMany({
@@ -31,10 +31,43 @@ export async function POST(request: NextRequest) {
                     positionY: entity.position.y,
                 })),
             });
+
+            return erd;
+        });
+
+        return NextResponse.json({ erd }, { status: 201 });
+    } catch (error) {
+        return NextResponse.json({ error: "Failed to create ERD" }, { status: 500 });
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    try {
+        const { id, entities }: { id: string; entities: Entity[]; } = await request.json();
+
+        if (!id || !entities) {
+            return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+        }
+
+        await prisma.$transaction(async () => {
+            await prisma.erdEntity.deleteMany({
+                where: {
+                    erdId: id,
+                },
+            });
+
+            await prisma.erdEntity.createMany({
+                data: entities.map((entity) => ({
+                    erdId: id,
+                    entityId: entity.id,
+                    positionX: entity.position.x,
+                    positionY: entity.position.y,
+                })),
+            });
         });
 
         return NextResponse.json({ status: 201 });
     } catch (error) {
-        return NextResponse.json({ error: "Failed to create ERD" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to update ERD" }, { status: 500 });
     }
 }

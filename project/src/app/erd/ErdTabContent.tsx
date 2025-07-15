@@ -138,10 +138,29 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
         }
     };
 
+    const handleClickClear = () => {
+        setDisplayedNodes([]);
+        setErdName("");
+        setSelectedErdId("");
+        setLoadedErd(null);
+    };
+
     return (
         <div className="flex flex-col w-64 px-2 border-r border-gray-200">
-            <div className="space-y-4">
-                <div>
+            <div className="space-y-4 pt-4">
+                <div className="border-b pb-2">
+                    <button
+                        type="button"
+                        className="
+                            px-5 py-2.5 rounded-lg bg-gray-700 text-white
+                            font-medium text-sm hover:bg-gray-800
+                        "
+                        onClick={handleClickClear}
+                    >
+                        クリア
+                    </button>
+                </div>
+                <div className="border-b pb-2">
                     <span>ER図読み込み</span>
                     <div className="mb-4">
                         <label htmlFor="countries" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ER図</label>
@@ -172,7 +191,7 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
                     </button>
                 </div>
                 {loadedErd && (
-                    <div>
+                    <div className="border-b pb-2">
                         <span>上書き保存</span>
                         <div className="mb-4">
                             <label htmlFor="overwrite-erd" className="block mb-2 text-sm font-medium text-gray-900">ER図名</label>
@@ -200,7 +219,7 @@ const ErdTabContent: React.FC<ErdTabContentProps> = ({
                         </button>
                     </div>
                 )}
-                <div>
+                <div className="border-b pb-2">
                     <span>名前を付けて保存</span>
                     <div className="mb-4">
                         <label htmlFor="save-erd" className="block mb-2 text-sm font-medium text-gray-900">ER図名</label>

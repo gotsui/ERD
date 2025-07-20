@@ -62,6 +62,8 @@ model Relation {
   targetAttribute   Attribute @relation(fields: [targetAttributeId], references: [id], name: "TargetToAttribute")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+
+  @@unique([sourceAttributeId, targetAttributeId])
 }
 
 model Erd {

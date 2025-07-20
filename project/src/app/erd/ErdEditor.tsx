@@ -12,6 +12,7 @@ import ErdTabContent from "./ErdTabContent";
 import EntityTabContent from "./EntityTabContent";
 import PageNode from "@/components/erd/PageNode";
 import PluginNode from "@/components/erd/PluginNode";
+import RelationTabContent from "./RelationTabContent";
 
 const nodeTypes = {
     table: TableNode,
@@ -37,6 +38,31 @@ const ErdEditor: React.FC = () => {
     const addedRelations = useMemo(() => {
         return displayedEdges.filter((edge) => !relations.some((relation) => relation.id === edge.id));
     }, [relations, displayedEdges]);
+
+    const saveRelations = useCallback(async () => {
+        const response = await fetch("/api/relation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                relations: addedRelations,
+            }),
+        });
+
+        if (response.ok) {
+            alert("保存しました");
+            const { edges } = await response.json();
+            const nextRelations = relations.concat(edges);
+            const removed = displayedEdges.filter((edge) => relations.some((relation) => relation.id === edge.id));
+            const nextDisplayedEdges = removed.concat(edges);
+            setRelations(nextRelations);
+            setDisplayedEdges(nextDisplayedEdges);
+        } else {
+            alert("保存に失敗しました");
+            const data = await response.json();
+            console.error(data);
+            return;
+        }
+    }, [setRelations, setDisplayedEdges, addedRelations]);
 
     const updateDisplay = useCallback((nextDisplayedNodes: Entity[]) => {
         const displayedNodeIdSet = new Set(nextDisplayedNodes.map((node) => node.id));
@@ -142,7 +168,11 @@ const ErdEditor: React.FC = () => {
                         />
                     </TabPanel>
                     <TabPanel id="relation">
-                        relation
+                        <RelationTabContent
+                            entities={entities}
+                            addedRelations={addedRelations}
+                            onClickSave={saveRelations}
+                        />
                     </TabPanel>
                     <TabPanel id="erd">
                         <ErdTabContent

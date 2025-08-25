@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { Entity, Relation } from "@/types/erd";
+import { Attribute, Entity, Relation } from "@/types/erd";
 
 export async function GET() {
     try {
@@ -34,5 +34,56 @@ export async function GET() {
         return NextResponse.json({ nodes, edges }, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch Entity" }, { status: 500 });
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    try {
+        const { id, attributes }: { id: string; attributes: Attribute[]; } = await request.json();
+
+        if (!id || !attributes) {
+            return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+        }
+
+        await prisma.attribute.createMany({
+            data: attributes.map((attribute) => ({
+                entityId: id,
+                name: attribute.name,
+                type: attribute.type,
+                comment: '',
+            })),
+        });
+
+        const updated = await prisma.entity.findFirst({
+            include: {
+                entityGroup: true,
+                attributes: true,
+            },
+            where: {
+                id,
+            },
+        });
+
+        if (!updated) {
+            throw new Error("Failed to fetch Entity"); 
+        }
+
+        const entity: Entity = {
+            id: updated.id,
+            type: updated.type,
+            position: {
+                x: 0,
+                y: 0,
+            },
+            data: {
+                name: updated.name,
+                groupName: updated.entityGroup.name,
+                attributes: updated.attributes,
+            },
+        };
+
+        return NextResponse.json({ entity }, { status: 200 });
+    } catch (error) {
+        return NextResponse.json({ error: "Failed to update Entity" }, { status: 500 });
     }
 }

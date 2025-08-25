@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { addEdge, Background, Connection, Controls, ReactFlow, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
+import { addEdge, Background, Connection, Controls, Node, ReactFlow, useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
 import { Entity, Relation } from "@/types/erd";
 import TableNode from "@/components/erd/TableNode";
 import Tab from "@/components/sidetabs/Tab";
@@ -13,6 +13,7 @@ import EntityTabContent from "./EntityTabContent";
 import PageNode from "@/components/erd/PageNode";
 import PluginNode from "@/components/erd/PluginNode";
 import RelationTabContent from "./RelationTabContent";
+import EditTabContent from "./EditTabContent";
 
 const nodeTypes = {
     table: TableNode,
@@ -27,6 +28,7 @@ const ErdEditor: React.FC = () => {
     const [relations, setRelations] = useState<Relation[]>([]);
     const [displayedNodes, setDisplayedNodes, onDisplayedNodesChange] = useNodesState<Entity>([]);
     const [displayedEdges, setDisplayedEdges, onDisplayedEdgesChange] = useEdgesState<Relation>([]);
+    const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null);
 
     const nonDisplayedNodes = useMemo(() => {
         const nodeIdSet = new Set(displayedNodes.map((node) => node.id));
@@ -73,6 +75,16 @@ const ErdEditor: React.FC = () => {
         setDisplayedNodes(nextDisplayedNodes);
         setDisplayedEdges(nextDisplayedEdges);
     }, [relations, setDisplayedNodes, setDisplayedEdges, addedRelations]);
+
+    const updateEntity = useCallback((entity: Entity) => {
+        setEntities((prev) => prev.map(
+            (p) => p.id === entity.id ? { ...p, data: { ...p.data, attributes: entity.data.attributes } } : p
+        ));
+        setDisplayedNodes((prev) => prev.map(
+            (node) => node.id === entity.id ? { ...node, data: { ...node.data, attribute: entity.data.attributes } } : node
+        ));
+        setSelectedEntity(entity);
+    }, [setEntities, setDisplayedNodes, setSelectedEntity]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -138,6 +150,10 @@ const ErdEditor: React.FC = () => {
         updateDisplay(nextDisplayedNodes);
     }, [screenToFlowPosition, nonDisplayedNodes]);
 
+    const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+        setSelectedEntity(entities.find((entity) => entity.id === node.id) ?? null);
+    }, [setSelectedEntity, entities]);
+
     return (
         <div className="h-screen w-screen flex flex-col select-none overflow-x-hidden">
             <div className="flex w-full h-full min-h-0">
@@ -148,6 +164,7 @@ const ErdEditor: React.FC = () => {
                         <Tab id="plugin">プラグイン</Tab>
                         <Tab id="relation">リレーション</Tab>
                         <Tab id="erd">ER図</Tab>
+                        <Tab id="edit">エンティティ<br/>編集</Tab>
                     </TabList>
                     <TabPanel id="table">
                         <EntityTabContent
@@ -180,6 +197,12 @@ const ErdEditor: React.FC = () => {
                             setDisplayedNodes={updateDisplay}
                         />
                     </TabPanel>
+                    <TabPanel id="edit">
+                        <EditTabContent
+                            selectedEntity={selectedEntity}
+                            updateEntity={updateEntity}
+                        />
+                    </TabPanel>
                 </TabGroup>
                 <div className="flex-1" ref={reactFlowWrapper}>
                     <ReactFlow
@@ -188,6 +211,7 @@ const ErdEditor: React.FC = () => {
                         onNodesChange={onDisplayedNodesChange}
                         onEdgesChange={onDisplayedEdgesChange}
                         onConnect={onConnect}
+                        onNodeClick={onNodeClick}
                         onDrop={onDrop}
                         onDragOver={onDragOver}
                         nodeTypes={nodeTypes}

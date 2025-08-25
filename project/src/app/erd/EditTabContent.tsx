@@ -73,8 +73,10 @@ const EditTabContent: React.FC<EditTabContentProps> = ({
         <div className="flex flex-col w-64 px-2 border-r border-gray-200">
             {selectedEntity && (
                 <div className="flex flex-col">
-                    <span>グループ: {selectedEntity.data.groupName}</span>
-                    <span>エンティティ: {selectedEntity.data.name}</span>
+                    <div>グループ名</div>
+                    <div className="px-4">{selectedEntity.data.groupName}</div>
+                    <div>エンティティ名</div>
+                    <div className="px-4">{selectedEntity.data.name}</div>
                 </div>
             )}
             <div>属性</div>
@@ -101,8 +103,8 @@ const EditTabContent: React.FC<EditTabContentProps> = ({
                 )}
             </div>
             {isShowEditor ? (
-                <div className="mt-4">
-                    <span>属性追加</span>
+                <div className="mt-4 space-y-4">
+                    <span className="block">属性追加</span>
                     <div>
                         <label htmlFor="attr-name" className="block mb-2 text-sm font-medium text-gray-900">属性名</label>
                         <input
@@ -145,25 +147,27 @@ const EditTabContent: React.FC<EditTabContentProps> = ({
                             required
                         />
                     </div>
-                    <button
-                        type="button"
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 mt-4"
-                        onClick={() => handleClickAdd()}
-                    >
-                        追加
-                    </button>
-                    <button
-                        type="button"
-                        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 mt-4"
-                        onClick={() => setIsShowEditor(false)}
-                    >
-                        キャンセル
-                    </button>
+                    <div className="flex">
+                        <button
+                            type="button"
+                            className="mx-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 mt-4"
+                            onClick={() => handleClickAdd()}
+                        >
+                            追加
+                        </button>
+                        <button
+                            type="button"
+                            className="mx-auto px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 mt-4"
+                            onClick={() => setIsShowEditor(false)}
+                        >
+                            キャンセル
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <button
                     type="button"
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                     onClick={() => setIsShowEditor(true)}
                 >
                     属性追加

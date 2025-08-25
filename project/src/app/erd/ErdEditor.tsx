@@ -14,6 +14,7 @@ import PageNode from "@/components/erd/PageNode";
 import PluginNode from "@/components/erd/PluginNode";
 import RelationTabContent from "./RelationTabContent";
 import EditTabContent from "./EditTabContent";
+import AddTabContent from "./AddTabContent";
 
 const nodeTypes = {
     table: TableNode,
@@ -164,6 +165,7 @@ const ErdEditor: React.FC = () => {
                         <Tab id="plugin">プラグイン</Tab>
                         <Tab id="relation">リレーション</Tab>
                         <Tab id="erd">ER図</Tab>
+                        <Tab id="add">エンティティ<br/>追加</Tab>
                         <Tab id="edit">エンティティ<br/>編集</Tab>
                     </TabList>
                     <TabPanel id="table">
@@ -195,6 +197,12 @@ const ErdEditor: React.FC = () => {
                         <ErdTabContent
                             displayedNodes={displayedNodes}
                             setDisplayedNodes={updateDisplay}
+                        />
+                    </TabPanel>
+                    <TabPanel id="add">
+                        <AddTabContent
+                            entities={entities}
+                            setEntities={setEntities}
                         />
                     </TabPanel>
                     <TabPanel id="edit">

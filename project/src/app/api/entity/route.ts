@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { Attribute, Entity, Relation } from "@/types/erd";
+import { Attribute, Entity, EntityType, Relation } from "@/types/erd";
 
 export async function GET() {
     try {
         const entities = await prisma.entity.findMany({
             include: { entityGroup: true, attributes: true },
-            orderBy: [{ name: "asc" }],
+            orderBy: [{ entityGroup: { name: "asc" } }, { name: "asc" }],
         });
 
         const relations = await prisma.relation.findMany();
@@ -34,6 +34,48 @@ export async function GET() {
         return NextResponse.json({ nodes, edges }, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch Entity" }, { status: 500 });
+    }
+}
+
+export async function POST(request: NextRequest) {
+    try {
+        const { entityGroupName, entityName, entityType }: { entityGroupName: string; entityName: string; entityType: EntityType; } = await request.json();
+
+        if (!entityGroupName || !entityName) {
+            return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+        }
+
+        const added = await prisma.$transaction(async (prisma) => {
+            const entityGroup = await prisma.entityGroup.upsert({
+                where: { name: entityGroupName },
+                update: {},
+                create: { name: entityGroupName },
+            });
+
+            const entity = await prisma.entity.create({
+                data: {
+                    entityGroupId: entityGroup.id,
+                    name: entityName,
+                    type: entityType,
+                }
+            });
+
+            return entity;
+        });
+
+        const entity: Entity = {
+            ...added,
+            position: { x: 0, y: 0 },
+            data: {
+                name: added.name,
+                groupName: entityGroupName,
+                attributes: [],
+            },
+        };
+
+        return NextResponse.json({ entity }, { status: 201 });
+    } catch (error) {
+            return NextResponse.json({ error: "Failed to create entity" }, { status: 500 });
     }
 }
 

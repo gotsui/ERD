@@ -82,7 +82,7 @@ const ErdEditor: React.FC = () => {
             (p) => p.id === entity.id ? { ...p, data: { ...p.data, attributes: entity.data.attributes } } : p
         ));
         setDisplayedNodes((prev) => prev.map(
-            (node) => node.id === entity.id ? { ...node, data: { ...node.data, attribute: entity.data.attributes } } : node
+            (node) => node.id === entity.id ? { ...node, data: { ...node.data, attributes: entity.data.attributes } } : node
         ));
         setSelectedEntity(entity);
     }, [setEntities, setDisplayedNodes, setSelectedEntity]);
